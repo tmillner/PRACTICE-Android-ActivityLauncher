@@ -1,6 +1,7 @@
 package com.trevor.showcase.nerdlauncher;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ public class NerdLauncherFragment extends Fragment {
 
     RecyclerView mRecyclerView;
 
-    public static NerdLauncherFragment newInstance() {
+    public static Fragment newInstance() {
         return new NerdLauncherFragment();
     }
 
@@ -65,21 +66,32 @@ public class NerdLauncherFragment extends Fragment {
     }
 
 
-    public class ActivityHolder extends RecyclerView.ViewHolder {
+    public class ActivityHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private ResolveInfo mActivityInfo;
+        private ResolveInfo mResolveInfo;
         private TextView mTextView;
 
         public ActivityHolder(View itemView) {
             super(itemView);
             mTextView = (TextView) itemView;
+            mTextView.setOnClickListener(this);
         }
 
         public void bindActivity(ResolveInfo activity) {
-            mActivityInfo = activity;
+            mResolveInfo = activity;
             PackageManager pm = getActivity().getPackageManager();
-            String appName = mActivityInfo.loadLabel(pm).toString();
+            String appName = mResolveInfo.loadLabel(pm).toString();
             mTextView.setText(appName);
+        }
+
+        @Override
+        public void onClick(View view) {
+            ActivityInfo activityInfo = mResolveInfo.activityInfo;
+
+            Intent intent = new Intent(Intent.ACTION_MAIN)
+                    .setClassName(activityInfo.applicationInfo.packageName, activityInfo.name)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
     }
 
